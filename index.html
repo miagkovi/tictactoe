@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>JS Tic-Tac-Toe</title>
+		<link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500" rel="stylesheet">
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body data-type='test'>
+
+	<div class="tic-tac-toe clearfix">
+		<div class="grid" data-row="0" data-column="0"></div>
+		<div class="grid" data-row="0" data-column="1"></div>
+		<div class="grid" data-row="0" data-column="2"></div>
+		<div class="grid" data-row="0" data-column="3"></div>
+		<div class="grid" data-row="0" data-column="4"></div>
+
+		<div class="grid" data-row="1" data-column="0"></div>
+		<div class="grid" data-row="1" data-column="1"></div>
+		<div class="grid" data-row="1" data-column="2"></div>
+		<div class="grid" data-row="1" data-column="3"></div>
+		<div class="grid" data-row="1" data-column="4"></div>
+
+		<div class="grid" data-row="2" data-column="0"></div>
+		<div class="grid" data-row="2" data-column="1"></div>
+		<div class="grid" data-row="2" data-column="2"></div>
+		<div class="grid" data-row="2" data-column="3"></div>
+		<div class="grid" data-row="2" data-column="4"></div>
+
+		<div class="grid" data-row="3" data-column="0"></div>
+		<div class="grid" data-row="3" data-column="1"></div>
+		<div class="grid" data-row="3" data-column="2"></div>
+		<div class="grid" data-row="3" data-column="3"></div>
+		<div class="grid" data-row="3" data-column="4"></div>
+
+		<div class="grid" data-row="4" data-column="0"></div>
+		<div class="grid" data-row="4" data-column="1"></div>
+		<div class="grid" data-row="4" data-column="2"></div>
+		<div class="grid" data-row="4" data-column="3"></div>
+		<div class="grid" data-row="4" data-column="4"></div>
+	</div>
+
+
+	<div class="warning fixedToTop">Player 1's turn</div>
+
+	<!-- overlay message - win/lose/draw -->
+	<div class="overlay">
+			<div class="message">
+				<h2>Game Over</h2>
+				<span class="theMessage">
+					Well done Player 1, You've won the game!
+				</span>
+				<a href="#" class="play-again">Play another round&nbsp; &#8250;</a>
+			</div>
+	</div>
+
+	<!-- Start overlay -->
+	<div class="start-overlay">
+		<div class="start-message">
+			<span class="theMessage">
+				Welcome to 5x5 Tic-Tac-Toe
+			</span>
+			<a href="#" class="lets-play">Ready to play!</a>
+		</div>
+		<div class="footer">
+			5x5 JS Tic-Tac-Toe by <a href="https://github.com/miagkovi">miagkovi</a> using <a href="https://github.com/ikramzidane">Ahmad Ikram's</a> <a href="https://github.com/ikramzidane/tic-tac-toe-JS">Simple JS Tic-Tac-Toe</a>
+		</div>
+	</div>
+
+	<script
+		src="https://code.jquery.com/jquery-3.1.1.min.js"
+		integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+		crossorigin="anonymous">
+	</script>
+
+	<script src="game.js"></script>
+
+	</body>
+</html>
