@@ -1,195 +1,121 @@
+"use strict";
+
 (function(){
 
-    // INITIALIZE /\/\/\/\/\/\/\/\-------------------------------
+    // init
+    var player = 1;
+    var diagonal = 0;
+    var antiDiagonal = 0;
+    var rows = [0,0,0,0,0];
+    var cols = [0,0,0,0,0];
+    var boardDimesion = 5;
+    var currentMoves = 1;
+    var totalMoves = boardDimesion * boardDimesion;
 
-    var hasWonRow       = false;
-    var hasWonColumn    = false;
-    var hasWonDiagonal1 = false;
-    var hasWonDiagonal2 = false;
-    var winnerFound     = false;
-    var boardDimesion   = 5;
-
-    var currentPlayer   = 1;  // player 1 is Os, player 2 is Xs
-    var currentMoves    = 1;
-
-    var movesBeforeWin  = (2 * boardDimesion) - 1;
-    var totalMoves      = boardDimesion * boardDimesion;
-
-    // arrays
-    // for a first player 1
-    var win1 = [1,1,1,1,1];
-    // for a player 2
-    var win2 = [2,2,2,2,2];
-    // board multidimensional array
-    var items = [
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0],
-        [0,0,0,0,0]
-    ];
-
-    // ACTIONS UPON CLICKED /\/\/\/\/\/\/\/\-------------------------------
-
-    $(".grid").click(function(e){
-        var $this = $(this);
-
-        // Prevent user from clicking a marked grid
-        if($this.attr("data-select")) {
-            $(".warning").html("Player " + currentPlayer + "'s turn - <strong>You cannot click on a marked spot</strong>");
-            return;
-        }
-
-        // Set appropriate attributes/values to grid clicked
-        if(currentPlayer == 1) {
-            $this.addClass("marked-o").attr({
-                "data-select" : "selected",
-                "data-marked" : "o"
-            });
-        } else {
-            $this.addClass("marked-x").attr({
-                "data-select" : "selected",
-                "data-marked" : "x"
-            });
-        }
-
-        // Change the value of the 2-D array (game logic)
-        var currentRow    = $this.data("row");
-        var currentColumn = $this.data("column");
-
-        // fill items array with player number
-        items[currentRow][currentColumn] = currentPlayer;
-
-        // activate game logic
-        if(currentMoves >= movesBeforeWin) {
-            gameLogic();
-        }
-
-        // Conditions for end of game without winner (Draw)
-        if(currentMoves >= totalMoves && winnerFound === false) {
-            $(".overlay .theMessage").text("It's a draw!");
-            showMainMessage();
-        }
-
-        // Change warning message
-        if(currentPlayer === 1) {
-            $(".warning").text("Player 2's turn");
-        } else {
-            $(".warning").text("Player 1's turn");
-        }
-
-        // Swapping players and increasing moves counter
-        switchPlayer();
-        currentMoves += 1;
-    });
-
+    // start-game button
     $(".lets-play").click(function(e){
         e.preventDefault();
         $(".start-message").addClass("hide");
         $(".start-overlay").fadeOut("1000");
     });
 
+    //end-game button
     $(".message").on("click", ".play-again", function(e){
         e.preventDefault();
         location.reload();
     });
 
-    // FUNCTIONS /\/\/\/\/\/\/\/\-------------------------------
+    // click
+    $(".grid").click(function(e){
 
-    function showMainMessage() {
+        // click init
+        var $this = $(this);
+        var row = $this.data("row");
+        var col = $this.data("column");
+        var resultOfMove;
+
+        // if player click on a market spot
+        // `move` would not be counted
+        // and player will be informed
+        if ($this.attr("data-select")) {
+            $(".warning").html("Player " + player + "'s turn - <strong>You cannot click on a marked spot</strong>");
+            return;
+        } else {
+            // resultOfMove can be 0, 1 or 2
+            // 0 is a draw
+            // 1 and 2 are players
+            resultOfMove = move(row, col, player);
+        }
+
+        // updating top info panel text
+        // and marking board cells
+        // according to player number
+        if (player === 1) {
+            $(".warning").text("Player 2's turn");
+            $this.addClass("marked-o").attr({
+                "data-select" : "selected"
+            });
+        } else {
+            $(".warning").text("Player 1's turn");
+            $this.addClass("marked-x").attr({
+                "data-select" : "selected"
+            });
+        }
+
+        // if not a draw
+        if (resultOfMove != 0) {
+            showWinnerMessage(player);
+        }
+
+        // if out of moves without winner === draw
+        if (currentMoves >= totalMoves && resultOfMove === 0) {
+            $(".overlay .theMessage").text("It's a draw!");
+            showMessage();
+        }
+
+        switchPlayer();
+        currentMoves += 1;
+
+    });
+
+    // functions
+
+    function switchPlayer() {
+        player = (player === 1) ? 2 : 1;
+    }
+
+    function showMessage() {
         $(".warning").addClass("hide");
         $(".overlay").fadeIn("1000");
         $(".message").addClass("show");
     }
 
-    function gameLogic() {
-        
-        // ckecking for a winner
-        // ckeck for a winner by row
-        winCondRow();
+    function showWinnerMessage(player) {
+        $(".overlay .theMessage").text("Well done Player " + player + ", You've won the game!");
+        showMessage();
+    }
 
-        // ckeck for a winner by column
-        winCondColumn();
-
-        // ckeck for a winner by diagonal left to right
-        winCondDiagonalLeftRight();
-
-        // ckeck for a winner by diagonal right to left
-        winCondDiagonalRightLeft();
-
-        // if the winner is exist than
-        // check who exactly won
-        // Conditions for end of game with winner
-        if(hasWonRow === true || hasWonColumn === true || hasWonDiagonal1 === true || hasWonDiagonal2 === true) {
-            var x = $(".marked-x").length;
-            var o = $(".marked-o").length;
-            winnerFound = true;
-            if( x >= o ) {
-                $(".overlay .theMessage").text("Well done Player 2, You've won the game!");
-            }
-            showMainMessage();
+    // main tic-tac-toe logic
+    // while returning 0, it is draw
+    // if return !0, then it is a number of player that win ( 1 or 2 )
+    function move(row, col, player) {
+        var toAdd = (player === 1) ? 1 : -1;
+        rows[row] += toAdd;
+        cols[col] += toAdd;
+        if (row === col) {
+            diagonal += toAdd;
         }
-    }
-
-    function switchPlayer() {
-        currentPlayer = (currentPlayer == 1) ? 2 : 1;
-    }
-
-    // check arrays equility with JSON.stringify
-    function arraysEqual(a1, a2, a3) {
-        return JSON.stringify(a1) === JSON.stringify(a2) || JSON.stringify(a1) === JSON.stringify(a3);
-    }
-
-    /*      get arrays
-            FUNCTIONS       */
-    // get specific row array from items array
-    function getRow(i) {
-        return items[i];
-    }
-
-    // get specific column array from items array
-    function getCol(i) {
-        return [items[0][i], items[1][i], items[2][i], items[3][i], items[4][i]];
-    }
-
-    // get left to right diagonal array from items array
-    function getDiaLToR(){
-        return [items[0][0], items[1][1], items[2][2], items[3][3], items[4][4]];
-    }
-
-    // get right to left diagonal array from items array
-    function getDiaRToL(){
-        return [items[0][4], items[1][3], items[2][2], items[3][1], items[4][0]];
-    }
-
-    /*      checking for a winner
-            FUNCTIONS               */
-    // ckeck for a winner by row
-    function winCondRow() {
-        if (arraysEqual(getRow(0),win1,win2) || arraysEqual(getRow(1),win1,win2) || arraysEqual(getRow(2),win1,win2) || arraysEqual(getRow(3),win1,win2) || arraysEqual(getRow(4),win1,win2) ){
-            hasWonRow = true;
+        if (col === (cols.length - row - 1)) {
+            antiDiagonal += toAdd;
         }
-    }
-
-    // ckeck for a winner by column
-    function winCondColumn(column) {
-        if (arraysEqual(getCol(0),win1,win2) || arraysEqual(getCol(1),win1,win2) || arraysEqual(getCol(2),win1,win2) || arraysEqual(getCol(3),win1,win2) || arraysEqual(getCol(4),win1,win2) ){
-            hasWonColumn = true;
+        var size = rows.length;
+        if (Math.abs(rows[row]) === size ||
+            Math.abs(cols[col]) === size ||
+            Math.abs(diagonal) === size  ||
+            Math.abs(antiDiagonal) === size) {
+            return player;
         }
-    }
-
-    // ckeck for a winner by diagonal left to right
-    function winCondDiagonalLeftRight() {
-        if (arraysEqual(getDiaLToR(0),win1,win2) || arraysEqual(getDiaLToR(1),win1,win2) || arraysEqual(getDiaLToR(2),win1,win2) || arraysEqual(getDiaLToR(3),win1,win2) || arraysEqual(getDiaLToR(4),win1,win2) ){
-            hasWonDiagonal1 = true;
-        }
-    }
-
-    // ckeck for a winner by diagonal right to left
-    function winCondDiagonalRightLeft() {
-        if (arraysEqual(getDiaRToL(0),win1,win2) || arraysEqual(getDiaRToL(1),win1,win2) || arraysEqual(getDiaRToL(2),win1,win2) || arraysEqual(getDiaRToL(3),win1,win2) || arraysEqual(getDiaRToL(4),win1,win2) ){
-            hasWonDiagonal2 = true;
-        }
-    }
+        return 0;
+    };
 
 }());
